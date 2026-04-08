@@ -2,20 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Firebase File Upload</title>
+  <title>File Upload System</title>
+
   <style>
     body {
       font-family: Arial;
-      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      background: linear-gradient(135deg, #667eea, #764ba2);
       padding: 30px;
       color: #333;
     }
 
     .container {
-      max-width: 600px;
+      max-width: 650px;
       margin: auto;
       background: #fff;
-      padding: 20px;
+      padding: 25px;
       border-radius: 12px;
     }
 
@@ -28,15 +29,30 @@
     .file-item {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       margin-top: 10px;
       background: #f1f1f1;
       padding: 10px;
       border-radius: 8px;
     }
 
+    .progress {
+      margin-top: 10px;
+      height: 10px;
+      background: #ddd;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: green;
+    }
+
     a {
-      text-decoration: none;
       color: blue;
+      text-decoration: none;
     }
   </style>
 </head>
@@ -44,20 +60,29 @@
 
 <div class="container">
   <h2>Upload File</h2>
-  
+
   <input type="file" id="fileInput">
   <button onclick="uploadFile()">Upload</button>
 
-  <h3>Uploaded Files</h3>
+  <div class="progress">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+
+  <h3>Files</h3>
   <div id="fileList"></div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
-import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js";
+import { 
+  getStorage, 
+  ref as sRef, 
+  uploadBytesResumable, 
+  getDownloadURL 
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js";
 
-// 🔥 YOUR CONFIG
+// 🔥 Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyAh-KrZGXAdHMGHMZvVoysYeD_GF6Zmwl0",
   authDomain: "porocalcutta-5c522.firebaseapp.com",
@@ -65,8 +90,7 @@ const firebaseConfig = {
   projectId: "porocalcutta-5c522",
   storageBucket: "porocalcutta-5c522.firebasestorage.app",
   messagingSenderId: "586676265954",
-  appId: "1:586676265954:web:963127ce09126734894fbb",
-  measurementId: "G-P921523KE6"
+  appId: "1:586676265954:web:963127ce09126734894fbb"
 };
 
 // Init
@@ -74,53 +98,77 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const storage = getStorage(app);
 
-// Upload Function
-window.uploadFile = async function () {
+// Upload function
+window.uploadFile = function () {
   const file = document.getElementById("fileInput").files[0];
 
-  if (!file) {
-    alert("Select a file first!");
-    return;
+  if (!file) return alert("Select file first");
+
+  // ⚠️ Size limit (5MB)
+  if (file.size > 5 * 1024 * 1024) {
+    return alert("File must be under 5MB");
   }
 
-  try {
-    const storageRef = sRef(storage, "files/" + file.name);
-
-    // Upload
-    await uploadBytes(storageRef, file);
-
-    // Get URL
-    const url = await getDownloadURL(storageRef);
-
-    // Save in DB
-    await push(ref(db, "files"), {
-      name: file.name,
-      url: url,
-      time: Date.now()
-    });
-
-    alert("File uploaded!");
-  } catch (error) {
-    console.error(error);
-    alert("Upload failed");
+  // ⚠️ Allowed types
+  const allowedTypes = ["image/", "application/pdf", "text/"];
+  if (!allowedTypes.some(type => file.type.startsWith(type))) {
+    return alert("Only images, PDF, and text files allowed");
   }
+
+  // Unique name
+  const uniqueName = Date.now() + "_" + file.name;
+
+  const storageRef = sRef(storage, "files/" + uniqueName);
+  const uploadTask = uploadBytesResumable(storageRef, file);
+
+  const progressBar = document.getElementById("progressBar");
+
+  uploadTask.on("state_changed", 
+    (snapshot) => {
+      const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+      progressBar.style.width = progress + "%";
+    },
+    (error) => {
+      console.error(error);
+      alert("Upload failed");
+    },
+    async () => {
+      const url = await getDownloadURL(uploadTask.snapshot.ref);
+
+      await push(ref(db, "files"), {
+        name: file.name,
+        url: url,
+        time: Date.now()
+      });
+
+      progressBar.style.width = "0%";
+      alert("Upload successful");
+    }
+  );
 };
 
-// Show Files
+// Load files
 const fileList = document.getElementById("fileList");
 
 onValue(ref(db, "files"), (snapshot) => {
   fileList.innerHTML = "";
 
-  snapshot.forEach((child) => {
-    const data = child.val();
+  let files = [];
 
+  snapshot.forEach(child => {
+    files.push(child.val());
+  });
+
+  // Sort latest first
+  files.sort((a, b) => b.time - a.time);
+
+  files.forEach(file => {
     const div = document.createElement("div");
     div.className = "file-item";
 
     div.innerHTML = `
-      <span>${data.name}</span>
-      <a href="${data.url}" target="_blank">Download</a>
+      <span>${file.name}</span>
+      <a href="${file.url}" target="_blank">Download</a>
     `;
 
     fileList.appendChild(div);
