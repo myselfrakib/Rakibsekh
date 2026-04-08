@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Firebase File Upload</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      padding: 30px;
+      color: #333;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+    }
+
+    input, button {
+      padding: 10px;
+      margin-top: 10px;
+      width: 100%;
+    }
+
+    .file-item {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+      background: #f1f1f1;
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    a {
+      text-decoration: none;
+      color: blue;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Upload File</h2>
+  
+  <input type="file" id="fileInput">
+  <button onclick="uploadFile()">Upload</button>
+
+  <h3>Uploaded Files</h3>
+  <div id="fileList"></div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
+import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js";
+
+// 🔥 YOUR CONFIG
+const firebaseConfig = {
+  apiKey: "AIzaSyAh-KrZGXAdHMGHMZvVoysYeD_GF6Zmwl0",
+  authDomain: "porocalcutta-5c522.firebaseapp.com",
+  databaseURL: "https://porocalcutta-5c522-default-rtdb.firebaseio.com",
+  projectId: "porocalcutta-5c522",
+  storageBucket: "porocalcutta-5c522.firebasestorage.app",
+  messagingSenderId: "586676265954",
+  appId: "1:586676265954:web:963127ce09126734894fbb",
+  measurementId: "G-P921523KE6"
+};
+
+// Init
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const storage = getStorage(app);
+
+// Upload Function
+window.uploadFile = async function () {
+  const file = document.getElementById("fileInput").files[0];
+
+  if (!file) {
+    alert("Select a file first!");
+    return;
+  }
+
+  try {
+    const storageRef = sRef(storage, "files/" + file.name);
+
+    // Upload
+    await uploadBytes(storageRef, file);
+
+    // Get URL
+    const url = await getDownloadURL(storageRef);
+
+    // Save in DB
+    await push(ref(db, "files"), {
+      name: file.name,
+      url: url,
+      time: Date.now()
+    });
+
+    alert("File uploaded!");
+  } catch (error) {
+    console.error(error);
+    alert("Upload failed");
+  }
+};
+
+// Show Files
+const fileList = document.getElementById("fileList");
+
+onValue(ref(db, "files"), (snapshot) => {
+  fileList.innerHTML = "";
+
+  snapshot.forEach((child) => {
+    const data = child.val();
+
+    const div = document.createElement("div");
+    div.className = "file-item";
+
+    div.innerHTML = `
+      <span>${data.name}</span>
+      <a href="${data.url}" target="_blank">Download</a>
+    `;
+
+    fileList.appendChild(div);
+  });
+});
+</script>
+
+</body>
+</html>
