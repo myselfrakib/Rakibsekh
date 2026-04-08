@@ -1,180 +1,409 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>File Upload System</title>
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Raw Code Saver</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial;
+      margin: 0;
+      font-family: Arial, sans-serif;
       background: linear-gradient(135deg, #667eea, #764ba2);
-      padding: 30px;
-      color: #333;
+      color: #222;
+      padding: 20px;
     }
 
     .container {
-      max-width: 650px;
-      margin: auto;
+      max-width: 1100px;
+      margin: 0 auto;
       background: #fff;
-      padding: 25px;
-      border-radius: 12px;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
     }
 
-    input, button {
-      padding: 10px;
-      margin-top: 10px;
+    h1 {
+      margin-top: 0;
+      font-size: 28px;
+      text-align: center;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: #f9f9f9;
+      border: 1px solid #e6e6e6;
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 6px;
+      font-weight: bold;
+    }
+
+    input, textarea, button {
       width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 14px;
     }
 
-    .file-item {
+    textarea {
+      min-height: 380px;
+      resize: vertical;
+      font-family: "Courier New", monospace;
+      white-space: pre;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      background: #4b61ff;
+      color: #fff;
+      font-weight: bold;
+      margin-top: 10px;
+      transition: 0.2s ease;
+    }
+
+    button:hover {
+      opacity: 0.92;
+    }
+
+    .secondary {
+      background: #6c757d;
+    }
+
+    .danger {
+      background: #dc3545;
+    }
+
+    .topbar {
       display: flex;
-      justify-content: space-between;
+      gap: 10px;
       align-items: center;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+
+    .topbar input {
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .snippet-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 760px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .snippet {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .snippet h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+
+    .meta {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 10px;
+    }
+
+    .preview {
+      background: #111;
+      color: #f2f2f2;
+      border-radius: 10px;
+      padding: 12px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 260px;
+      font-family: "Courier New", monospace;
+      font-size: 13px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
       margin-top: 10px;
-      background: #f1f1f1;
-      padding: 10px;
-      border-radius: 8px;
+      flex-wrap: wrap;
     }
 
-    .progress {
+    .actions button {
+      width: auto;
+      padding: 10px 14px;
+      margin-top: 0;
+    }
+
+    .status {
       margin-top: 10px;
-      height: 10px;
-      background: #ddd;
-      border-radius: 5px;
-      overflow: hidden;
+      font-size: 14px;
+      font-weight: bold;
     }
 
-    .progress-bar {
-      height: 100%;
-      width: 0%;
-      background: green;
-    }
+    .status.ok { color: #1a7f37; }
+    .status.err { color: #b42318; }
 
-    a {
-      color: blue;
-      text-decoration: none;
+    .small-note {
+      font-size: 13px;
+      color: #555;
+      margin-top: 6px;
     }
   </style>
 </head>
 <body>
+  <div class="container">
+    <h1>Raw Code Saver</h1>
 
-<div class="container">
-  <h2>Upload File</h2>
+    <div class="grid">
+      <div class="card">
+        <h2>Save New Code</h2>
 
-  <input type="file" id="fileInput">
-  <button onclick="uploadFile()">Upload</button>
+        <label for="titleInput">Title</label>
+        <input id="titleInput" type="text" placeholder="Example: login page code" />
 
-  <div class="progress">
-    <div class="progress-bar" id="progressBar"></div>
+        <label for="languageInput">Language / Type</label>
+        <input id="languageInput" type="text" placeholder="Example: HTML, JavaScript, PHP" />
+
+        <label for="codeInput">Raw Code</label>
+        <textarea id="codeInput" placeholder="Type or paste your code here..."></textarea>
+
+        <button id="saveBtn">Save Code</button>
+        <div id="saveStatus" class="status"></div>
+        <div class="small-note">
+          This saves plain text to Firebase. Your formatting stays safe.
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Saved Codes</h2>
+
+        <div class="topbar">
+          <input id="searchInput" type="text" placeholder="Search by title or language..." />
+          <button id="refreshBtn" class="secondary">Refresh</button>
+        </div>
+
+        <div id="snippetList" class="snippet-list"></div>
+      </div>
+    </div>
   </div>
 
-  <h3>Files</h3>
-  <div id="fileList"></div>
-</div>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+    import {
+      getDatabase,
+      ref,
+      push,
+      set,
+      onValue,
+      remove,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
-import { 
-  getStorage, 
-  ref as sRef, 
-  uploadBytesResumable, 
-  getDownloadURL 
-} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js";
+    const firebaseConfig = {
+      apiKey: "AIzaSyAh-KrZGXAdHMGHMZvVoysYeD_GF6Zmwl0",
+      authDomain: "porocalcutta-5c522.firebaseapp.com",
+      databaseURL: "https://porocalcutta-5c522-default-rtdb.firebaseio.com",
+      projectId: "porocalcutta-5c522",
+      storageBucket: "porocalcutta-5c522.firebasestorage.app",
+      messagingSenderId: "586676265954",
+      appId: "1:586676265954:web:963127ce09126734894fbb",
+      measurementId: "G-P921523KE6"
+    };
 
-// 🔥 Firebase Config
-const firebaseConfig = {
-  apiKey: "AIzaSyAh-KrZGXAdHMGHMZvVoysYeD_GF6Zmwl0",
-  authDomain: "porocalcutta-5c522.firebaseapp.com",
-  databaseURL: "https://porocalcutta-5c522-default-rtdb.firebaseio.com",
-  projectId: "porocalcutta-5c522",
-  storageBucket: "porocalcutta-5c522.firebasestorage.app",
-  messagingSenderId: "586676265954",
-  appId: "1:586676265954:web:963127ce09126734894fbb"
-};
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-// Init
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const storage = getStorage(app);
+    const titleInput = document.getElementById("titleInput");
+    const languageInput = document.getElementById("languageInput");
+    const codeInput = document.getElementById("codeInput");
+    const saveBtn = document.getElementById("saveBtn");
+    const saveStatus = document.getElementById("saveStatus");
+    const snippetList = document.getElementById("snippetList");
+    const searchInput = document.getElementById("searchInput");
+    const refreshBtn = document.getElementById("refreshBtn");
 
-// Upload function
-window.uploadFile = function () {
-  const file = document.getElementById("fileInput").files[0];
+    let allSnippets = [];
 
-  if (!file) return alert("Select file first");
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML;
+    }
 
-  // ⚠️ Size limit (5MB)
-  if (file.size > 5 * 1024 * 1024) {
-    return alert("File must be under 5MB");
-  }
+    function formatTime(ts) {
+      if (!ts) return "Unknown time";
+      return new Date(ts).toLocaleString();
+    }
 
-  // ⚠️ Allowed types
-  const allowedTypes = ["image/", "application/pdf", "text/"];
-  if (!allowedTypes.some(type => file.type.startsWith(type))) {
-    return alert("Only images, PDF, and text files allowed");
-  }
+    function showStatus(message, type = "ok") {
+      saveStatus.className = "status " + type;
+      saveStatus.textContent = message;
+      setTimeout(() => {
+        saveStatus.textContent = "";
+        saveStatus.className = "status";
+      }, 3000);
+    }
 
-  // Unique name
-  const uniqueName = Date.now() + "_" + file.name;
+    function renderSnippets() {
+      const q = searchInput.value.trim().toLowerCase();
 
-  const storageRef = sRef(storage, "files/" + uniqueName);
-  const uploadTask = uploadBytesResumable(storageRef, file);
-
-  const progressBar = document.getElementById("progressBar");
-
-  uploadTask.on("state_changed", 
-    (snapshot) => {
-      const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-      progressBar.style.width = progress + "%";
-    },
-    (error) => {
-      console.error(error);
-      alert("Upload failed");
-    },
-    async () => {
-      const url = await getDownloadURL(uploadTask.snapshot.ref);
-
-      await push(ref(db, "files"), {
-        name: file.name,
-        url: url,
-        time: Date.now()
+      const filtered = allSnippets.filter(item => {
+        const title = (item.title || "").toLowerCase();
+        const language = (item.language || "").toLowerCase();
+        const code = (item.code || "").toLowerCase();
+        return title.includes(q) || language.includes(q) || code.includes(q);
       });
 
-      progressBar.style.width = "0%";
-      alert("Upload successful");
+      snippetList.innerHTML = "";
+
+      if (filtered.length === 0) {
+        snippetList.innerHTML = "<div class='small-note'>No saved code found.</div>";
+        return;
+      }
+
+      filtered.forEach(item => {
+        const wrap = document.createElement("div");
+        wrap.className = "snippet";
+
+        const safeTitle = escapeHtml(item.title || "Untitled");
+        const safeLanguage = escapeHtml(item.language || "Unknown");
+        const safeCode = escapeHtml(item.code || "");
+
+        wrap.innerHTML = `
+          <h3>${safeTitle}</h3>
+          <div class="meta">
+            Language: ${safeLanguage} | Saved: ${formatTime(item.createdAt)}
+          </div>
+          <div class="preview">${safeCode}</div>
+          <div class="actions">
+            <button class="copyBtn">Copy</button>
+            <button class="loadBtn secondary">Load</button>
+            <button class="deleteBtn danger">Delete</button>
+          </div>
+        `;
+
+        wrap.querySelector(".copyBtn").addEventListener("click", async () => {
+          try {
+            await navigator.clipboard.writeText(item.code || "");
+            showStatus("Code copied to clipboard.", "ok");
+          } catch (err) {
+            showStatus("Copy failed.", "err");
+          }
+        });
+
+        wrap.querySelector(".loadBtn").addEventListener("click", () => {
+          titleInput.value = item.title || "";
+          languageInput.value = item.language || "";
+          codeInput.value = item.code || "";
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+
+        wrap.querySelector(".deleteBtn").addEventListener("click", async () => {
+          const ok = confirm(`Delete "${item.title || "Untitled"}"?`);
+          if (!ok) return;
+
+          try {
+            await remove(ref(db, "snippets/" + item.id));
+            showStatus("Deleted successfully.", "ok");
+          } catch (err) {
+            console.error(err);
+            showStatus("Delete failed.", "err");
+          }
+        });
+
+        snippetList.appendChild(wrap);
+      });
     }
-  );
-};
 
-// Load files
-const fileList = document.getElementById("fileList");
+    async function saveCode() {
+      const title = titleInput.value.trim();
+      const language = languageInput.value.trim();
+      const code = codeInput.value;
 
-onValue(ref(db, "files"), (snapshot) => {
-  fileList.innerHTML = "";
+      if (!title) {
+        showStatus("Title is required.", "err");
+        return;
+      }
 
-  let files = [];
+      if (!code.trim()) {
+        showStatus("Code cannot be empty.", "err");
+        return;
+      }
 
-  snapshot.forEach(child => {
-    files.push(child.val());
-  });
+      saveBtn.disabled = true;
+      saveBtn.textContent = "Saving...";
 
-  // Sort latest first
-  files.sort((a, b) => b.time - a.time);
+      try {
+        const newRef = push(ref(db, "snippets"));
+        await set(newRef, {
+          title,
+          language: language || "Unknown",
+          code,
+          createdAt: Date.now(),
+          firebaseServerTime: serverTimestamp()
+        });
 
-  files.forEach(file => {
-    const div = document.createElement("div");
-    div.className = "file-item";
+        titleInput.value = "";
+        languageInput.value = "";
+        codeInput.value = "";
+        showStatus("Code saved successfully.", "ok");
+      } catch (err) {
+        console.error(err);
+        showStatus("Save failed.", "err");
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = "Save Code";
+      }
+    }
 
-    div.innerHTML = `
-      <span>${file.name}</span>
-      <a href="${file.url}" target="_blank">Download</a>
-    `;
+    function loadSnippets() {
+      const snippetsRef = ref(db, "snippets");
 
-    fileList.appendChild(div);
-  });
-});
-</script>
+      onValue(snippetsRef, (snapshot) => {
+        const data = snapshot.val() || {};
+        const list = [];
 
+        for (const id in data) {
+          list.push({ id, ...data[id] });
+        }
+
+        list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        allSnippets = list;
+        renderSnippets();
+      });
+    }
+
+    saveBtn.addEventListener("click", saveCode);
+    refreshBtn.addEventListener("click", renderSnippets);
+    searchInput.addEventListener("input", renderSnippets);
+
+    loadSnippets();
+  </script>
 </body>
 </html>
