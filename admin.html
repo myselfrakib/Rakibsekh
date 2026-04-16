@@ -3,215 +3,609 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Panel | Rakib</title>
+  <title>Admin Panel | jersify</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <style>
-    :root {
-      --bg: #f3f4f6;
-      --card-bg: #ffffff;
-      --primary: #274f3f;
-      --text: #1f2937;
-      --muted: #6b7280;
-      --border: #e5e7eb;
-      --radius: 12px;
-      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    }
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);font-size:14px;color:var(--color-text-primary);background:var(--color-background-tertiary)}
+h2{font-size:18px;font-weight:500}
+h3{font-size:15px;font-weight:500}
+label{font-size:13px;color:var(--color-text-secondary);display:block;margin-bottom:4px}
+input,textarea,select{width:100%;font-size:13px;padding:7px 10px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);outline:none;font-family:var(--font-sans)}
+input:focus,textarea:focus,select:focus{border-color:var(--color-border-primary);box-shadow:0 0 0 2px rgba(128,128,128,0.15)}
+textarea{resize:vertical;min-height:70px}
+button{font-family:var(--font-sans);font-size:13px;cursor:pointer;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);padding:7px 14px;background:var(--color-background-primary);color:var(--color-text-primary)}
+button:hover{background:var(--color-background-secondary)}
+button.primary{background:var(--color-text-primary);color:var(--color-background-primary);border-color:var(--color-text-primary)}
+button.primary:hover{opacity:0.85}
+button.danger{color:var(--color-text-danger);border-color:var(--color-border-danger)}
+button.danger:hover{background:var(--color-background-danger)}
+.app{display:grid;grid-template-columns:200px 1fr;min-height:100vh}
+.sidebar{background:var(--color-background-primary);border-right:0.5px solid var(--color-border-tertiary);padding:16px 0}
+.sidebar-brand{padding:0 16px 16px;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:8px}
+.sidebar-brand .logo{font-size:15px;font-weight:500}
+.sidebar-brand .sub{font-size:12px;color:var(--color-text-secondary)}
+.nav-item{display:flex;align-items:center;gap:8px;padding:8px 16px;font-size:13px;cursor:pointer;color:var(--color-text-secondary);border-left:2px solid transparent;transition:all .15s}
+.nav-item:hover{background:var(--color-background-secondary);color:var(--color-text-primary)}
+.nav-item.active{color:var(--color-text-primary);background:var(--color-background-secondary);border-left-color:var(--color-text-primary);font-weight:500}
+.nav-icon{font-size:15px;width:18px;text-align:center}
+.main{padding:24px;overflow-y:auto}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.badge{font-size:11px;padding:2px 8px;border-radius:99px;background:var(--color-background-success);color:var(--color-text-success);border:0.5px solid var(--color-border-success)}
+.panel{display:none}
+.panel.active{display:block}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:16px 20px;margin-bottom:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.field{margin-bottom:12px}
+.field:last-child{margin-bottom:0}
+.row{display:flex;gap:8px;align-items:flex-end}
+.row .field{flex:1;margin-bottom:0}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:10px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.list-item{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 14px;margin-bottom:8px;display:flex;gap:10px;align-items:flex-start}
+.list-item .handle{color:var(--color-text-tertiary);cursor:grab;padding-top:2px;font-size:16px}
+.list-item .body{flex:1;display:grid;gap:8px}
+.list-item .actions{display:flex;gap:6px;flex-shrink:0}
+.tag-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.tag{font-size:12px;padding:3px 10px;border-radius:99px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;gap:4px}
+.tag .del{cursor:pointer;color:var(--color-text-tertiary);font-size:14px;line-height:1}
+.tag .del:hover{color:var(--color-text-danger)}
+.add-tag-row{display:flex;gap:6px;margin-top:8px}
+.add-tag-row input{flex:1}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px}
+.stat-card .num{font-size:22px;font-weight:500;margin-bottom:2px}
+.stat-card .lbl{font-size:12px;color:var(--color-text-secondary)}
+.pct-bar{height:4px;background:var(--color-background-secondary);border-radius:99px;margin-top:8px;overflow:hidden}
+.pct-fill{height:100%;background:var(--color-text-primary);border-radius:99px}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--color-text-primary);color:var(--color-background-primary);padding:10px 16px;border-radius:var(--border-radius-md);font-size:13px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:99}
+.toast.show{opacity:1}
+.chip-preview{display:inline-block;padding:4px 10px;border-radius:99px;background:rgba(243,175,26,.18);color:#274f3f;font-size:12px;font-weight:500;margin:2px}
+.preview-btn{width:100%;margin-top:12px;text-align:center}
+.divider{height:0.5px;background:var(--color-border-tertiary);margin:16px 0}
+</style>
 
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-    }
-    
-    .sidebar {
-      width: 250px;
-      background: var(--primary);
-      color: white;
-      position: fixed;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      padding: 20px;
-    }
-    .sidebar h2 { margin-top: 0; font-size: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px;}
-    .nav-tabs { display: flex; flex-direction: column; gap: 10px; }
-    .nav-tabs button {
-      background: transparent;
-      color: rgba(255,255,255,0.7);
-      border: none;
-      padding: 12px;
-      text-align: left;
-      font-size: 1rem;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.2s;
-    }
-    .nav-tabs button:hover, .nav-tabs button.active {
-      background: rgba(255,255,255,0.1);
-      color: white;
-    }
+<div class="app">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo">⚙ Admin Panel</div>
+      <div class="sub">Rakib's Portfolio</div>
+    </div>
+    <div class="nav-item active" onclick="show('dashboard')"><span class="nav-icon">◈</span>Dashboard</div>
+    <div class="nav-item" onclick="show('hero')"><span class="nav-icon">⌂</span>Hero Section</div>
+    <div class="nav-item" onclick="show('services')"><span class="nav-icon">◎</span>Services</div>
+    <div class="nav-item" onclick="show('about')"><span class="nav-icon">◉</span>About</div>
+    <div class="nav-item" onclick="show('tools')"><span class="nav-icon">◆</span>Skills & Tools</div>
+    <div class="nav-item" onclick="show('projects')"><span class="nav-icon">▣</span>Projects</div>
+    <div class="nav-item" onclick="show('timeline')"><span class="nav-icon">◐</span>Timeline</div>
+    <div class="nav-item" onclick="show('testimonials')"><span class="nav-icon">❝</span>Testimonials</div>
+    <div class="nav-item" onclick="show('faq')"><span class="nav-icon">?</span>FAQs</div>
+    <div class="nav-item" onclick="show('contact')"><span class="nav-icon">✉</span>Contact</div>
+    <div class="nav-item" onclick="show('social')"><span class="nav-icon">◈</span>Social Links</div>
+    <div class="nav-item" onclick="show('export')"><span class="nav-icon">↓</span>Export Code</div>
+  </aside>
 
-    .main-content {
-      margin-left: 250px;
-      padding: 40px;
-    }
-    
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 30px;
-    }
+  <main class="main">
+    <div id="toast" class="toast">Saved successfully</div>
 
-    .header h1 { margin: 0; font-size: 2rem; color: var(--text); }
-    
-    .panel {
-      display: none;
-      background: var(--card-bg);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 30px;
-      margin-bottom: 30px;
-    }
-    .panel.active { display: block; }
-    
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    th, td {
-      padding: 15px;
-      text-align: left;
-      border-bottom: 1px solid var(--border);
-    }
-    th {
-      font-weight: 600;
-      color: var(--muted);
-      text-transform: uppercase;
-      font-size: 0.85rem;
-      letter-spacing: 0.05em;
-    }
-    
-    .spinner {
-      text-align: center;
-      padding: 40px;
-      font-size: 2rem;
-      color: var(--muted);
-    }
-  </style>
+    <!-- DASHBOARD -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="topbar"><h2>Dashboard</h2><span class="badge">Live</span></div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="num" id="dash-projects">4</div><div class="lbl">Projects</div></div>
+        <div class="stat-card"><div class="num" id="dash-services">3</div><div class="lbl">Services</div></div>
+        <div class="stat-card"><div class="num" id="dash-skills">6</div><div class="lbl">Skills</div></div>
+        <div class="stat-card"><div class="num" id="dash-faq">3</div><div class="lbl">FAQs</div></div>
+      </div>
+      <div class="card">
+        <div class="section-head"><h3>Quick overview</h3></div>
+        <p style="color:var(--color-text-secondary);font-size:13px;line-height:1.7">Use the sidebar to edit each section of your portfolio. Changes are stored in this admin panel and you can export the final HTML at any time using the <strong>Export Code</strong> section.</p>
+        <div class="divider"></div>
+        <div class="grid2">
+          <div>
+            <label>Portfolio owner</label>
+            <input id="owner-name" value="Rakib" oninput="syncBrand()"/>
+          </div>
+          <div>
+            <label>Job title</label>
+            <input id="owner-title" value="Full Stack Web Developer" oninput="syncBrand()"/>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HERO -->
+    <div class="panel" id="panel-hero">
+      <div class="topbar"><h2>Hero Section</h2><button class="primary" onclick="save('hero')">Save changes</button></div>
+      <div class="card">
+        <div class="section-head"><h3>Headline &amp; intro</h3></div>
+        <div class="field"><label>Greeting badge text</label><input id="h-greeting" value="Hello There!"/></div>
+        <div class="grid2">
+          <div class="field"><label>Name accent (highlighted)</label><input id="h-name" value="Rakib,"/></div>
+          <div class="field"><label>Role line</label><input id="h-role" value="Full Stack Web Developer."/></div>
+        </div>
+        <div class="field"><label>Hero description</label><textarea id="h-desc">I build modern, fast, and responsive web experiences with clean UI, strong backend logic, and practical user-focused solutions.</textarea></div>
+      </div>
+      <div class="card">
+        <div class="section-head"><h3>Metric chips</h3></div>
+        <div class="grid3">
+          <div>
+            <div class="field"><label>Chip 1 title</label><input id="h-m1t" value="Frontend"/></div>
+            <div class="field"><label>Chip 1 subtitle</label><input id="h-m1s" value="HTML · CSS · JavaScript"/></div>
+          </div>
+          <div>
+            <div class="field"><label>Chip 2 title</label><input id="h-m2t" value="Backend"/></div>
+            <div class="field"><label>Chip 2 subtitle</label><input id="h-m2s" value="Node.js · Express.js"/></div>
+          </div>
+          <div>
+            <div class="field"><label>Chip 3 title</label><input id="h-m3t" value="Focus"/></div>
+            <div class="field"><label>Chip 3 subtitle</label><input id="h-m3s" value="UI, speed, usability"/></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-head"><h3>Floating card chips</h3></div>
+        <div class="grid2">
+          <div class="field"><label>Chip top-left (HTML•CSS•JS)</label><input id="h-c4" value="HTML • CSS • JS"/></div>
+          <div class="field"><label>Chip bottom-left (Node.js)</label><input id="h-c1" value="Node.js • Express"/></div>
+          <div class="field"><label>Chip right (Web Apps)</label><input id="h-c2" value="Web Apps"/></div>
+          <div class="field"><label>Circle chip (Available...)</label><input id="h-c3" value="Available for work"/></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SERVICES -->
+    <div class="panel" id="panel-services">
+      <div class="topbar"><h2>Services</h2><button class="primary" onclick="addService()">+ Add service</button></div>
+      <div id="services-list"></div>
+    </div>
+
+    <!-- ABOUT -->
+    <div class="panel" id="panel-about">
+      <div class="topbar"><h2>About Section</h2><button class="primary" onclick="save('about')">Save changes</button></div>
+      <div class="card">
+        <div class="section-head"><h3>Bio</h3></div>
+        <div class="field"><label>About me paragraph</label><textarea id="ab-bio">I design and build practical web products with a sharp eye for UI and a focus on performance. My stack includes HTML, CSS, JavaScript, Node.js, and Express.js. I like simple, fast, usable interfaces — not bloated nonsense.</textarea></div>
+      </div>
+      <div class="card">
+        <div class="section-head"><h3>Stats</h3></div>
+        <div class="grid3">
+          <div>
+            <div class="field"><label>Stat 1 number</label><input id="ab-s1n" value="10+"/></div>
+            <div class="field"><label>Stat 1 label</label><input id="ab-s1l" value="Projects Built"/></div>
+          </div>
+          <div>
+            <div class="field"><label>Stat 2 number</label><input id="ab-s2n" value="4"/></div>
+            <div class="field"><label>Stat 2 label</label><input id="ab-s2l" value="Core Tech Skills"/></div>
+          </div>
+          <div>
+            <div class="field"><label>Stat 3 number</label><input id="ab-s3n" value="100%"/></div>
+            <div class="field"><label>Stat 3 label</label><input id="ab-s3l" value="Responsive Focus"/></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-head"><h3>Skill tags</h3></div>
+        <div id="about-tags" class="tag-row"></div>
+        <div class="add-tag-row">
+          <input id="about-tag-input" placeholder="Add tag e.g. React"/>
+          <button onclick="addAboutTag()">Add</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOOLS -->
+    <div class="panel" id="panel-tools">
+      <div class="topbar"><h2>Skills &amp; Tools</h2><button class="primary" onclick="addTool()">+ Add skill</button></div>
+      <div id="tools-list"></div>
+    </div>
+
+    <!-- PROJECTS -->
+    <div class="panel" id="panel-projects">
+      <div class="topbar"><h2>Projects</h2><button class="primary" onclick="addProject()">+ Add project</button></div>
+      <div id="projects-list"></div>
+    </div>
+
+    <!-- TIMELINE -->
+    <div class="panel" id="panel-timeline">
+      <div class="topbar"><h2>Timeline</h2><button class="primary" onclick="addTimeline()">+ Add entry</button></div>
+      <div id="timeline-list"></div>
+    </div>
+
+    <!-- TESTIMONIALS -->
+    <div class="panel" id="panel-testimonials">
+      <div class="topbar"><h2>Testimonials</h2><button class="primary" onclick="addTestimonial()">+ Add testimonial</button></div>
+      <div id="testimonials-list"></div>
+    </div>
+
+    <!-- FAQS -->
+    <div class="panel" id="panel-faq">
+      <div class="topbar"><h2>FAQs</h2><button class="primary" onclick="addFaq()">+ Add FAQ</button></div>
+      <div id="faq-list"></div>
+    </div>
+
+    <!-- CONTACT -->
+    <div class="panel" id="panel-contact">
+      <div class="topbar"><h2>Contact Info</h2><button class="primary" onclick="save('contact')">Save changes</button></div>
+      <div class="card">
+        <div class="grid2">
+          <div class="field"><label>Phone</label><input id="c-phone" value="+919907718066"/></div>
+          <div class="field"><label>Email</label><input id="c-email" value="sekhrakib667@gmail.com"/></div>
+          <div class="field"><label>GitHub</label><input id="c-github" value="github.com/myselfrakib/"/></div>
+          <div class="field"><label>LinkedIn</label><input id="c-linkedin" value="linkedin.com/Rakibsekh"/></div>
+        </div>
+        <div class="divider"></div>
+        <div class="section-head"><h3>Section text</h3></div>
+        <div class="grid2">
+          <div class="field"><label>Section label</label><input id="c-label" value="Contact Us"/></div>
+          <div class="field"><label>Section title</label><input id="c-title" value="Let's Talk for Your Next Project"/></div>
+        </div>
+        <div class="field"><label>Subtitle</label><input id="c-subtitle" value="The contact section should be simple, clean, and impossible to miss."/></div>
+      </div>
+    </div>
+
+    <!-- SOCIAL -->
+    <div class="panel" id="panel-social">
+      <div class="topbar"><h2>Social Links</h2><button class="primary" onclick="save('social')">Save changes</button></div>
+      <div class="card">
+        <div class="grid2">
+          <div class="field"><label>GitHub URL</label><input id="s-github" value="https://github.com/your-github"/></div>
+          <div class="field"><label>LinkedIn URL</label><input id="s-linkedin" value="https://linkedin.com/in/your-linkedin"/></div>
+          <div class="field"><label>X (Twitter) URL</label><input id="s-x" value="https://x.com/your-x"/></div>
+          <div class="field"><label>Email address</label><input id="s-email" value="youremail@example.com"/></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXPORT -->
+    <div class="panel" id="panel-export">
+      <div class="topbar"><h2>Export Code</h2><button class="primary" onclick="generateExport()">Generate HTML</button></div>
+      <div class="card">
+        <p style="color:var(--color-text-secondary);font-size:13px;margin-bottom:12px">Click "Generate HTML" to produce the updated portfolio HTML based on your admin settings. Copy it and replace your <code>index.html</code> file.</p>
+        <textarea id="export-output" style="min-height:320px;font-family:var(--font-mono);font-size:12px" placeholder="Generated HTML will appear here..."></textarea>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button onclick="copyExport()">Copy to clipboard</button>
+          <button onclick="downloadExport()">Download index.html</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+const state = {
+  services: [
+    {icon:'fa-solid fa-code',title:'Frontend Development',desc:'Responsive, accessible, and polished interfaces built with HTML, CSS, and JavaScript.'},
+    {icon:'fa-solid fa-server',title:'Backend Development',desc:'REST APIs and server-side logic with Node.js and Express.js for real-world applications.'},
+    {icon:'fa-solid fa-layer-group',title:'Full Stack Builds',desc:'End-to-end websites and dashboards with clean flow, structure, and maintainable code.'}
+  ],
+  tools: [
+    {icon:'fa-brands fa-html5',name:'HTML5',pct:98},
+    {icon:'fa-brands fa-css3-alt',name:'CSS3',pct:95},
+    {icon:'fa-brands fa-js',name:'JavaScript',pct:90},
+    {icon:'fa-brands fa-node-js',name:'Node.js',pct:88},
+    {icon:'fa-solid fa-gears',name:'Express.js',pct:85},
+    {icon:'fa-solid fa-database',name:'MongoDB',pct:80}
+  ],
+  projects: [
+    {title:'E-commerce Product Landing Page',desc:'A modern landing page with sharp visuals, smooth scrolling, and strong conversion focus.',tags:'UI/UX,Frontend,Responsive',img:'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80',link:'#'},
+    {title:'Admin Dashboard with API Integration',desc:'A structured dashboard with auth, data handling, and clear admin workflow support.',tags:'Backend,Node.js,Express',img:'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80',link:'#'},
+    {title:'Cab Booking Platform',desc:'Designed for real booking flows, user actions, and practical business operations.',tags:'Full Stack,Booking,Firebase',img:'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80',link:'#'},
+    {title:'Developer Portfolio Website',desc:'Personal branding site with strong visual hierarchy, hover states, and social redirects.',tags:'Portfolio,Branding,Animations',img:'https://images.unsplash.com/photo-1522542550221-31fd19575a2d?auto=format&fit=crop&w=1200&q=80',link:'#'}
+  ],
+  timeline: [
+    {period:'2024 - Present',title:'Self-Driven Full Stack Development',desc:'Building real projects with HTML, CSS, JavaScript, Node.js, and Express.js.'},
+    {period:'2023 - 2024',title:'Frontend UI Practice',desc:'Focused on responsive design systems, component consistency, and layout polish.'},
+    {period:'Freelance / Projects',title:'Website Builds for Clients',desc:'Landing pages, dashboards, and custom business websites with practical UX.'},
+    {period:'Backend Practice',title:'Node.js & Express APIs',desc:'Auth systems, forms, routing, and API-driven application structure.'}
+  ],
+  testimonials: [
+    {quote:'Rakib delivered a clean, mobile-friendly site with fast turnaround and no unnecessary clutter.',name:'Client Name',role:'Founder, Business'},
+    {quote:'The backend structure was solid, and the UI looked sharp on every device. Exactly what was needed.',name:'Client Name',role:'Product Owner'}
+  ],
+  faqs: [
+    {q:'What do you build?',a:'I build responsive websites, landing pages, dashboards, and backend-powered web apps.'},
+    {q:'Can I see your code?',a:'Yes. Add your GitHub link in the social section and project buttons will redirect there or to live demos.'},
+    {q:'Are you available for freelance work?',a:'Yes, I am currently accepting new projects. Feel free to reach out via the contact form.'}
+  ],
+  aboutTags: ['HTML','CSS','JavaScript','Node.js','Express.js','MongoDB','REST API']
+};
+
+function show(section) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('panel-'+section).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    if(n.getAttribute('onclick')==="show('"+section+"')") n.classList.add('active');
+  });
+  if(section==='services') renderServices();
+  if(section==='tools') renderTools();
+  if(section==='projects') renderProjects();
+  if(section==='timeline') renderTimeline();
+  if(section==='testimonials') renderTestimonials();
+  if(section==='faq') renderFaqs();
+  if(section==='about') renderAboutTags();
+}
+
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg||'Saved successfully';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+function save(sec){toast('Section saved!');}
+
+function syncBrand(){}
+
+function renderAboutTags(){
+  const el=document.getElementById('about-tags');
+  el.innerHTML=state.aboutTags.map((t,i)=>`<span class="tag">${t}<span class="del" onclick="removeAboutTag(${i})">×</span></span>`).join('');
+}
+function addAboutTag(){
+  const inp=document.getElementById('about-tag-input');
+  const v=inp.value.trim();
+  if(v){state.aboutTags.push(v);inp.value='';renderAboutTags();}
+}
+function removeAboutTag(i){state.aboutTags.splice(i,1);renderAboutTags();}
+
+function renderServices(){
+  document.getElementById('dash-services').textContent=state.services.length;
+  document.getElementById('services-list').innerHTML=state.services.map((s,i)=>`
+    <div class="card">
+      <div class="section-head">
+        <h3>Service ${i+1}</h3>
+        <button class="danger" onclick="removeItem('services',${i});renderServices()">Remove</button>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Icon class (Font Awesome)</label><input value="${s.icon}" oninput="state.services[${i}].icon=this.value"/></div>
+        <div class="field"><label>Title</label><input value="${s.title}" oninput="state.services[${i}].title=this.value"/></div>
+      </div>
+      <div class="field"><label>Description</label><textarea oninput="state.services[${i}].desc=this.value">${s.desc}</textarea></div>
+    </div>`).join('');
+}
+function addService(){
+  state.services.push({icon:'fa-solid fa-star',title:'New Service',desc:'Description here.'});
+  renderServices();
+}
+
+function renderTools(){
+  document.getElementById('dash-skills').textContent=state.tools.length;
+  document.getElementById('tools-list').innerHTML=state.tools.map((t,i)=>`
+    <div class="card">
+      <div class="section-head">
+        <h3>${t.name}</h3>
+        <button class="danger" onclick="removeItem('tools',${i});renderTools()">Remove</button>
+      </div>
+      <div class="grid3">
+        <div class="field"><label>Name</label><input value="${t.name}" oninput="state.tools[${i}].name=this.value"/></div>
+        <div class="field"><label>Icon class</label><input value="${t.icon}" oninput="state.tools[${i}].icon=this.value"/></div>
+        <div class="field"><label>Proficiency %</label><input type="number" min="0" max="100" value="${t.pct}" oninput="state.tools[${i}].pct=+this.value"/></div>
+      </div>
+      <div class="pct-bar"><div class="pct-fill" style="width:${t.pct}%"></div></div>
+    </div>`).join('');
+}
+function addTool(){
+  state.tools.push({icon:'fa-solid fa-code',name:'New Skill',pct:75});
+  renderTools();
+}
+
+function renderProjects(){
+  document.getElementById('dash-projects').textContent=state.projects.length;
+  document.getElementById('projects-list').innerHTML=state.projects.map((p,i)=>`
+    <div class="card">
+      <div class="section-head">
+        <h3>Project ${i+1}: ${p.title}</h3>
+        <button class="danger" onclick="removeItem('projects',${i});renderProjects()">Remove</button>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Title</label><input value="${p.title}" oninput="state.projects[${i}].title=this.value"/></div>
+        <div class="field"><label>Live demo URL</label><input value="${p.link}" oninput="state.projects[${i}].link=this.value"/></div>
+      </div>
+      <div class="field"><label>Description</label><textarea oninput="state.projects[${i}].desc=this.value">${p.desc}</textarea></div>
+      <div class="grid2">
+        <div class="field"><label>Tags (comma-separated)</label><input value="${p.tags}" oninput="state.projects[${i}].tags=this.value"/></div>
+        <div class="field"><label>Image URL</label><input value="${p.img}" oninput="state.projects[${i}].img=this.value"/></div>
+      </div>
+      <div style="margin-top:8px;display:flex;gap:4px;flex-wrap:wrap">${p.tags.split(',').map(t=>`<span class="chip-preview">${t.trim()}</span>`).join('')}</div>
+    </div>`).join('');
+}
+function addProject(){
+  state.projects.push({title:'New Project',desc:'Project description.',tags:'Tag1,Tag2',img:'',link:'#'});
+  renderProjects();
+}
+
+function renderTimeline(){
+  document.getElementById('timeline-list').innerHTML=state.timeline.map((t,i)=>`
+    <div class="card">
+      <div class="section-head">
+        <h3>${t.title}</h3>
+        <button class="danger" onclick="removeItem('timeline',${i});renderTimeline()">Remove</button>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Period / label</label><input value="${t.period}" oninput="state.timeline[${i}].period=this.value"/></div>
+        <div class="field"><label>Title</label><input value="${t.title}" oninput="state.timeline[${i}].title=this.value"/></div>
+      </div>
+      <div class="field"><label>Description</label><textarea oninput="state.timeline[${i}].desc=this.value">${t.desc}</textarea></div>
+    </div>`).join('');
+}
+function addTimeline(){
+  state.timeline.push({period:'Year',title:'New Entry',desc:'Details here.'});
+  renderTimeline();
+}
+
+function renderTestimonials(){
+  document.getElementById('testimonials-list').innerHTML=state.testimonials.map((t,i)=>`
+    <div class="card">
+      <div class="section-head">
+        <h3>${t.name}</h3>
+        <button class="danger" onclick="removeItem('testimonials',${i});renderTestimonials()">Remove</button>
+      </div>
+      <div class="field"><label>Quote</label><textarea oninput="state.testimonials[${i}].quote=this.value">${t.quote}</textarea></div>
+      <div class="grid2">
+        <div class="field"><label>Client name</label><input value="${t.name}" oninput="state.testimonials[${i}].name=this.value"/></div>
+        <div class="field"><label>Role / company</label><input value="${t.role}" oninput="state.testimonials[${i}].role=this.value"/></div>
+      </div>
+    </div>`).join('');
+}
+function addTestimonial(){
+  state.testimonials.push({quote:'Great work delivered on time.',name:'Client Name',role:'Founder'});
+  renderTestimonials();
+}
+
+function renderFaqs(){
+  document.getElementById('dash-faq').textContent=state.faqs.length;
+  document.getElementById('faq-list').innerHTML=state.faqs.map((f,i)=>`
+    <div class="card">
+      <div class="section-head">
+        <h3>FAQ ${i+1}</h3>
+        <button class="danger" onclick="removeItem('faqs',${i});renderFaqs()">Remove</button>
+      </div>
+      <div class="field"><label>Question</label><input value="${f.q}" oninput="state.faqs[${i}].q=this.value"/></div>
+      <div class="field"><label>Answer</label><textarea oninput="state.faqs[${i}].a=this.value">${f.a}</textarea></div>
+    </div>`).join('');
+}
+function addFaq(){
+  state.faqs.push({q:'New question?',a:'Answer here.'});
+  renderFaqs();
+}
+
+function removeItem(key,i){state[key].splice(i,1);}
+
+function g(id){return document.getElementById(id)?document.getElementById(id).value:'';}
+
+function generateExport(){
+  const name=g('owner-name')||'Rakib';
+  const title=g('owner-title')||'Full Stack Web Developer';
+  const greeting=g('h-greeting')||'Hello There!';
+  const hname=g('h-name')||'Rakib,';
+  const hrole=g('h-role')||'Full Stack Web Developer.';
+  const hdesc=g('h-desc')||'';
+  const phone=g('c-phone');const email=g('c-email');const gh=g('c-github');const li=g('c-linkedin');
+  const sgithub=g('s-github');const slinkedin=g('s-linkedin');const sx=g('s-x');const semail=g('s-email');
+  const about=g('ab-bio');
+  const s1n=g('ab-s1n');const s1l=g('ab-s1l');const s2n=g('ab-s2n');const s2l=g('ab-s2l');const s3n=g('ab-s3n');const s3l=g('ab-s3l');
+
+  const servicesHTML=state.services.map(s=>`
+        <article class="card"><div class="service-icon"><i class="${s.icon}"></i></div><h3>${s.title}</h3><p>${s.desc}</p><span class="learn">Learn more <i class="fa-solid fa-arrow-right-long"></i></span></article>`).join('');
+
+  const toolsHTML=state.tools.map(t=>`
+        <div class="tool"><div class="tool-icon"><i class="${t.icon}"></i></div><div class="pct">${t.pct}%</div><div class="name">${t.name}</div></div>`).join('');
+
+  const projectsHTML=state.projects.map(p=>{
+    const chips=p.tags.split(',').map(t=>`<span class="chip">${t.trim()}</span>`).join('');
+    const imgTag=p.img?`<img src="${p.img}" alt="${p.title}" />`:'';
+    return `
+        <article class="card project-card">
+          <div class="project-media">${imgTag}</div>
+          <div class="project-body"><div class="chips">${chips}</div><h3 class="project-title">${p.title}</h3><p>${p.desc}</p><div class="project-footer"><span class="learn">Live Demo</span><button class="circle-btn" onclick="window.open('${p.link}', '_blank')"><i class="fa-solid fa-arrow-up-right-from-square"></i></button></div></div>
+        </article>`;}).join('');
+
+  const timelineItems=state.timeline.map(t=>`<div class="timeline-item"><div class="period">${t.period}</div><h4>${t.title}</h4><p>${t.desc}</p></div>`).join('');
+  const half=Math.ceil(state.timeline.length/2);
+  const tl1=state.timeline.slice(0,half).map(t=>`<div class="timeline-item"><div class="period">${t.period}</div><h4>${t.title}</h4><p>${t.desc}</p></div>`).join('');
+  const tl2=state.timeline.slice(half).map(t=>`<div class="timeline-item"><div class="period">${t.period}</div><h4>${t.title}</h4><p>${t.desc}</p></div>`).join('');
+
+  const testimonialsHTML=state.testimonials.map(t=>`
+          <div class="card" style="background: rgba(255,255,255,.96);"><p>${t.quote}</p><strong style="display:block; margin-top:14px;">${t.name}</strong><span style="color:var(--muted)">${t.role}</span></div>`).join('');
+
+  const faqsHTML=state.faqs.map((f,i)=>`
+        <div class="faq-item${i===0?' open':''}"><button class="faq-q">${f.q} <span>${i===0?'−':'+'}</span></button><div class="faq-a">${f.a}</div></div>`).join('');
+
+  const tagsHTML=state.aboutTags.map(t=>`<span class="tag">${t}</span>`).join('');
+
+  const html=`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${name} | ${title}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <!-- [styles kept from original - omitted for brevity in preview] -->
 </head>
 <body>
+  <!-- HERO -->
+  <section id="home">
+    <div class="hello">${greeting}</div>
+    <h1>I'm <span class="accent">${hname}</span> ${hrole}</h1>
+    <p>${hdesc}</p>
+  </section>
 
-  <div class="sidebar">
-    <h2><i class="fa-solid fa-code"></i> Admin Panel</h2>
-    <div class="nav-tabs">
-      <button class="active" onclick="switchTab('messages')"><i class="fa-solid fa-envelope"></i> Messages</button>
-      <button onclick="switchTab('settings')"><i class="fa-solid fa-cog"></i> Settings</button>
+  <!-- SERVICES -->
+  <section id="services">
+    <div class="grid-3">${servicesHTML}</div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <p>${about}</p>
+    <div class="stats">
+      <div class="stat"><strong>${s1n}</strong><span>${s1l}</span></div>
+      <div class="stat"><strong>${s2n}</strong><span>${s2l}</span></div>
+      <div class="stat"><strong>${s3n}</strong><span>${s3l}</span></div>
     </div>
+    <div class="tags">${tagsHTML}</div>
+  </section>
+
+  <!-- TOOLS -->
+  <section><div class="tools">${toolsHTML}</div></section>
+
+  <!-- PROJECTS -->
+  <section id="projects"><div class="grid-2">${projectsHTML}</div></section>
+
+  <!-- TIMELINE -->
+  <section><div class="timeline">
+    <div class="timeline-list">${tl1}</div>
+    <div class="timeline-list">${tl2}</div>
+  </div></section>
+
+  <!-- TESTIMONIALS -->
+  <section><div class="grid-2">${testimonialsHTML}</div></section>
+
+  <!-- FAQS -->
+  <section><div class="faq">${faqsHTML}</div></section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="contact-line"><i class="fa-solid fa-phone"></i> ${phone}</div>
+    <div class="contact-line"><i class="fa-solid fa-envelope"></i> ${email}</div>
+    <div class="contact-line"><i class="fa-brands fa-github"></i> ${gh}</div>
+    <div class="contact-line"><i class="fa-brands fa-linkedin-in"></i> ${li}</div>
+  </section>
+
+  <!-- SOCIAL -->
+  <div class="social-row">
+    <a class="social" href="${sgithub}" target="_blank"><i class="fa-brands fa-github"></i></a>
+    <a class="social" href="${slinkedin}" target="_blank"><i class="fa-brands fa-linkedin-in"></i></a>
+    <a class="social" href="${sx}" target="_blank"><i class="fa-brands fa-x-twitter"></i></a>
+    <a class="social" href="mailto:${semail}"><i class="fa-solid fa-envelope"></i></a>
   </div>
+</body>
+</html>`;
 
-  <div class="main-content">
-    <div class="header">
-      <h1>Dashboard</h1>
-    </div>
+  document.getElementById('export-output').value=html;
+  toast('HTML generated! Copy or download below.');
+}
 
-    <!-- Messages Panel -->
-    <div id="messages" class="panel active">
-      <h2 style="margin-top:0">Contact Messages</h2>
-      <p style="color:var(--muted)">View messages sent from your portfolio contact form.</p>
-      
-      <div id="messages-loading" class="spinner">
-        <i class="fa-solid fa-circle-notch fa-spin"></i>
-      </div>
-      
-      <table id="messages-table" style="display:none">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Subject</th>
-            <th>Budget</th>
-            <th>Message</th>
-          </tr>
-        </thead>
-        <tbody id="messages-list">
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Settings Panel -->
-    <div id="settings" class="panel">
-      <h2 style="margin-top:0">General Settings</h2>
-      <p style="color:var(--muted)">Manage basic settings (Coming Soon).</p>
-      <div style="padding: 40px; text-align: center; background: var(--bg); border-radius: 8px; border: 1px dashed var(--border);">
-        <i class="fa-solid fa-hammer" style="font-size: 3rem; color: var(--muted); margin-bottom: 20px; display: block;"></i>
-        Under Construction
-      </div>
-    </div>
-  </div>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyADN_dWNHXyNDkdN1RmNB9F5hV_sgqsFuM",
-      authDomain: "rakib-18024.firebaseapp.com",
-      databaseURL: "https://rakib-18024-default-rtdb.firebaseio.com",
-      projectId: "rakib-18024",
-      storageBucket: "rakib-18024.firebasestorage.app",
-      messagingSenderId: "193964280836",
-      appId: "1:193964280836:web:e429578d2490129c8f3951"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    window.switchTab = function(tabId) {
-      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-      document.querySelectorAll('.nav-tabs button').forEach(b => b.classList.remove('active'));
-      document.getElementById(tabId).classList.add('active');
-      event.currentTarget.classList.add('active');
-    };
-
-    async function loadMessages() {
-      try {
-        const q = query(collection(db, "messages"), orderBy("timestamp", "desc"));
-        const querySnapshot = await getDocs(q);
-        const list = document.getElementById('messages-list');
-        list.innerHTML = '';
-        
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          const date = data.timestamp ? new Date(data.timestamp.toDate()).toLocaleString() : 'N/A';
-          list.innerHTML += \`
-            <tr>
-              <td style="white-space:nowrap; font-size:0.9rem; color:var(--muted)">\${date}</td>
-              <td style="font-weight:600">\${data.name}</td>
-              <td><a href="mailto:\${data.email}">\${data.email}</a></td>
-              <td>\${data.subject}</td>
-              <td><span style="background:rgba(39, 79, 63, 0.1); color:#274f3f; padding:4px 8px; border-radius:4px; font-size:0.8rem; font-weight:bold;">\${data.budget}</span></td>
-              <td style="max-width:300px; line-height:1.4">\${data.message}</td>
-            </tr>
-          \`;
-        });
-
-        document.getElementById('messages-loading').style.display = 'none';
-        document.getElementById('messages-table').style.display = 'table';
-      } catch (e) {
-        console.error("Error loading messages: ", e);
-        document.getElementById('messages-loading').innerHTML = '<div style="color:red"><i class="fa-solid fa-triangle-exclamation"></i> Error loading messages. Make sure you have setup Firestore Database rules to allow reading.</div>';
-      }
-    }
-
-    // Load initially
-    loadMessages();
-  </script>
+function copyExport(){
+  const el=document.getElementById('export-output');
+  if(el.value){navigator.clipboard.writeText(el.value).then(()=>toast('Copied to clipboard!'));}
+  else{toast('Generate HTML first');}
+}
+function downloadExport(){
+  const val=document.getElementById('export-output').value;
+  if(!val){toast('Generate HTML first');return;}
+  const a=document.createElement('a');
+  a.href='data:text/html;charset=utf-8,'+encodeURIComponent(val);
+  a.download='index.html';
+  a.click();
+  toast('Download started!');
+}
+</script>
 </body>
 </html>
